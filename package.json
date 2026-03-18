@@ -1,13 +1,13 @@
 {
-  "name": "react-hotkeys-hook",
-  "description": "React hook for handling keyboard shortcuts",
-  "version": "5.2.4",
+  "name": "@humanlayer/react-hotkeys-hook",
+  "description": "React hook for handling keyboard shortcuts (HumanLayer fork)",
+  "version": "5.2.5",
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/JohannesKlauss/react-keymap-hook.git"
+    "url": "https://github.com/humanlayer/react-hotkeys-hook.git"
   },
-  "homepage": "https://react-hotkeys-hook.vercel.app/",
+  "homepage": "https://github.com/humanlayer/react-hotkeys-hook",
   "author": "Johannes Klauss",
   "type": "module",
   "main": "packages/react-hotkeys-hook/dist/index.js",
@@ -32,7 +32,7 @@
     "build": "npm run -w packages/react-hotkeys-hook build",
     "build:documentation": "npm run -w packages/documentation build",
     "test": "npm run -w packages/react-hotkeys-hook test",
-    "prepublishOnly": "npm run test && npm run lint && npm run build",
+    "prepack": "npm run build",
     "format": "npx @biomejs/biome format --write packages",
     "lint": "npx @biomejs/biome lint --write packages"
   },
@@ -42,6 +42,9 @@
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11"
