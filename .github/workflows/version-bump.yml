@@ -1,0 +1,85 @@
+name: Version Bump
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "packages/react-hotkeys-hook/**"
+      - ".github/workflows/publish.yml"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-version-bump') }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run Claude Version Bump Analysis
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          claude --dangerously-skip-permissions --model sonnet -p "
+          You are analyzing PR #${{ github.event.pull_request.number }} for @humanlayer/react-hotkeys-hook version bump.
+
+          ## Context
+          - Package: root package.json (publishes from packages/react-hotkeys-hook/dist)
+          - Package name: @humanlayer/react-hotkeys-hook
+          - PR Title: ${{ github.event.pull_request.title }}
+
+          ## Instructions
+
+          1. Read the PR diff using: gh pr diff ${{ github.event.pull_request.number }}
+          2. Read the commit messages using: gh pr view ${{ github.event.pull_request.number }} --json commits
+          3. Check the current version: cat package.json | jq -r '.version'
+          4. Check if version differs from base branch: git show origin/${{ github.base_ref }}:package.json | jq -r '.version'
+
+          ## Decision Logic
+
+          If the user ALREADY bumped the version (current != base):
+          - Analyze whether you agree with their bump level
+          - If you agree: explain why their choice is correct
+          - If you disagree: explain what bump level you would recommend and why
+          - DO NOT make any changes - just provide your analysis
+
+          If the user has NOT bumped the version (current == base):
+          - Determine the appropriate bump level based on changes:
+            - MAJOR: Breaking API changes, removed exports, changed hook signatures
+            - MINOR: New features, new exports, new options (backwards compatible)
+            - PATCH: Bug fixes, documentation, refactoring, dependency updates
+          - Bump BOTH package.json files:
+            - npm version <major|minor|patch> --no-git-tag-version
+            - cd packages/react-hotkeys-hook && npm version <major|minor|patch> --no-git-tag-version
+          - Commit: git add package.json packages/react-hotkeys-hook/package.json && git commit -m 'chore: bump @humanlayer/react-hotkeys-hook to <new-version>'
+          - Push: git push
+
+          ## Final Output
+
+          End your response with a clear summary formatted like:
+
+          ## Version Bump Summary
+
+          **Package**: @humanlayer/react-hotkeys-hook
+          **Action**: <bumped to X.Y.Z | agreed with user bump to X.Y.Z | recommend <type> instead of user's <type> | no changes needed>
+          **Reasoning**: <brief explanation of why this bump level is appropriate based on the changes>
+          " 2>&1 | tee CLAUDE_OUTPUT.md
+
+      - name: Comment on PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body-file CLAUDE_OUTPUT.md

@@ -1,0 +1,52 @@
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "package.json"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm install --frozen-lockfile
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+        env:
+          CI: true
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify dist contents
+        run: |
+          echo "Contents of packages/react-hotkeys-hook/dist/:"
+          ls -la packages/react-hotkeys-hook/dist/
+          if [ ! -f packages/react-hotkeys-hook/dist/index.js ]; then
+            echo "ERROR: dist/index.js not found"
+            exit 1
+          fi
+          if [ ! -f packages/react-hotkeys-hook/dist/index.d.ts ]; then
+            echo "ERROR: dist/index.d.ts not found"
+            exit 1
+          fi
+
+      - name: Publish to npm
+        run: npm publish --tolerate-republish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
