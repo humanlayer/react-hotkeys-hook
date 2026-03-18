@@ -82,4 +82,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body-file CLAUDE_OUTPUT.md --edit-last || \
           gh pr comment ${{ github.event.pull_request.number }} --body-file CLAUDE_OUTPUT.md
