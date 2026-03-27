@@ -1,7 +1,7 @@
 {
   "name": "@humanlayer/react-hotkeys-hook",
   "description": "React hook for handling keyboard shortcuts (HumanLayer fork)",
-  "version": "5.2.5",
+  "version": "5.2.6",
   "sideEffects": false,
   "repository": {
     "type": "git",

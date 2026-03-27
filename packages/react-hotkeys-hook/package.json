@@ -1,6 +1,6 @@
 {
   "name": "react-hotkeys-hook",
-  "version": "5.2.5",
+  "version": "5.2.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
