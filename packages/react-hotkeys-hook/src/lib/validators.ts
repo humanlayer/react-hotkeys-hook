@@ -125,8 +125,15 @@ export const isHotkeyMatchingKeyboardEvent = (e: KeyboardEvent, hotkey: Hotkey, 
 
   // All modifiers are correct, now check the key
   // If useKey is set, match against the produced key value instead of the key code
-  if (useKey && keys?.length === 1 && keys.includes(producedKey.toLowerCase())) {
-    return true
+  // When useKey is true, we ONLY match produced keys — never fall through to code-based matching
+  if (useKey) {
+    if (keys?.length === 1) {
+      return keys.includes(producedKey.toLowerCase())
+    }
+    if (keys && keys.length > 0) {
+      return isHotkeyPressed(keys.map((k) => k.toLowerCase()))
+    }
+    return !keys || keys.length === 0
   }
 
   // If the key is set, we check for the key
