@@ -37,7 +37,7 @@ export function parseHotkey(
   hotkey: string,
   splitKey = '+',
   sequenceSplitKey = '>',
-  useKey = false,
+  useKey = true,
   description?: string,
   metadata?: Record<string, unknown>,
 ): Hotkey {

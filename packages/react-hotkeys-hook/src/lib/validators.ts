@@ -127,8 +127,10 @@ export const isHotkeyMatchingKeyboardEvent = (e: KeyboardEvent, hotkey: Hotkey, 
   // If useKey is set, match against the produced key value instead of the key code
   // When useKey is true, we ONLY match produced keys — never fall through to code-based matching
   if (useKey) {
+    // Normalize produced key: map ' ' to 'space' so hotkey string 'space' works with useKey
+    const normalizedKey = producedKey === ' ' ? 'space' : producedKey.toLowerCase()
     if (keys?.length === 1) {
-      return keys.includes(producedKey.toLowerCase())
+      return keys.includes(normalizedKey)
     }
     if (keys && keys.length > 0) {
       return isHotkeyPressed(keys.map((k) => k.toLowerCase()))
