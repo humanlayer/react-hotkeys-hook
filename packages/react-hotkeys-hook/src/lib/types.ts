@@ -81,7 +81,7 @@ export type Options = {
   ignoreModifiers?: boolean
   // Pass through event listener options. (Default: undefined)
   eventListenerOptions?: EventListenerOptions
-  // Listen to the produced key instead of the code. (Default: false)
+  // Listen to the produced key instead of the code. (Default: true)
   useKey?: boolean
   // The timeout to wait for the next key to be pressed. (Default: 1000ms)
   sequenceTimeoutMs?: number

@@ -376,7 +376,7 @@ test('should listen to multiple combinations with modifiers', async () => {
     alt: true,
     meta: false,
     mod: false,
-    useKey: false,
+    useKey: true,
     isSequence: false,
     hotkey: 'alt+b',
   })
@@ -1055,7 +1055,8 @@ test('should listen to function keys f1-f16', async () => {
   const user = userEvent.setup()
   const callback = vi.fn()
 
-  renderHook(() => useHotkeys('f1, f16', callback))
+  // Function keys are physical keys — use code-based matching
+  renderHook(() => useHotkeys('f1, f16', callback, { useKey: false }))
 
   await user.keyboard('[F1]')
   await user.keyboard('[F16]')
@@ -1128,7 +1129,7 @@ test('should pass keyboard event and hotkey object to callback', async () => {
     alt: false,
     meta: false,
     mod: false,
-    useKey: false,
+    useKey: true,
     isSequence: false,
     hotkey: 'a',
   })
@@ -1150,7 +1151,7 @@ test('should set shift to true in hotkey object if listening to shift', async ()
     alt: false,
     meta: false,
     mod: false,
-    useKey: false,
+    useKey: true,
     isSequence: false,
     hotkey: 'shift+a',
   })
@@ -1172,7 +1173,7 @@ test('should set ctrl to true in hotkey object if listening to ctrl', async () =
     alt: false,
     meta: false,
     mod: false,
-    useKey: false,
+    useKey: true,
     isSequence: false,
     hotkey: 'ctrl+a',
   })
@@ -1194,7 +1195,7 @@ test('should set alt to true in hotkey object if listening to alt', async () => 
     alt: true,
     meta: false,
     mod: false,
-    useKey: false,
+    useKey: true,
     isSequence: false,
     hotkey: 'alt+a',
   })
@@ -1216,7 +1217,7 @@ test('should set mod to true in hotkey object if listening to mod', async () => 
     alt: false,
     meta: false,
     mod: true,
-    useKey: false,
+    useKey: true,
     isSequence: false,
     hotkey: 'mod+a',
   })
@@ -1238,7 +1239,7 @@ test('should set meta to true in hotkey object if listening to meta', async () =
     alt: false,
     meta: true,
     mod: false,
-    useKey: false,
+    useKey: true,
     isSequence: false,
     hotkey: 'meta+a',
   })
@@ -1260,7 +1261,7 @@ test('should set multiple modifiers to true in hotkey object if listening to mul
     ctrl: false,
     meta: false,
     mod: true,
-    useKey: false,
+    useKey: true,
     isSequence: false,
     hotkey: 'mod+shift+a',
   })
@@ -1362,7 +1363,7 @@ test('should call preventDefault option function with hotkey and keyboard event'
     ctrl: false,
     meta: false,
     mod: false,
-    useKey: false,
+    useKey: true,
     isSequence: false,
     hotkey: 'a',
   })
@@ -1597,11 +1598,11 @@ test('Should listen to produced key and not to code', async () => {
   expect(callback).toHaveBeenCalledTimes(1)
 })
 
-test('Should not check produced key if useKey is not set', async () => {
+test('Should not check produced key if useKey is false', async () => {
   const user = userEvent.setup()
   const callback = vi.fn()
 
-  renderHook(() => useHotkeys(`=`, callback))
+  renderHook(() => useHotkeys(`=`, callback, { useKey: false }))
 
   await user.keyboard(`=`)
 
