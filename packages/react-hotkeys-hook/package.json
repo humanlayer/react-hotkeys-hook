@@ -1,6 +1,6 @@
 {
-  "name": "react-hotkeys-hook",
-  "version": "5.3.0",
+  "name": "@humanlayer/react-hotkeys-hook",
+  "version": "5.3.1",
   "type": "module",
   "scripts": {
     "dev": "vite",

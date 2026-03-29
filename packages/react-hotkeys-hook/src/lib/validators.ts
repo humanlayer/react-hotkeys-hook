@@ -2,6 +2,15 @@ import type { FormTags, Hotkey, Scopes, Trigger } from './types'
 import { isHotkeyPressed, isReadonlyArray } from './isHotkeyPressed'
 import { mapCode } from './parseHotkeys'
 
+// macOS Option key transforms letters to Unicode characters (US keyboard layout)
+// Reverse map to recover intended letter - same approach as GitHub's hotkey library
+const macOSOptionKeyReverseMap: Record<string, string> = {
+  'å': 'a', '∫': 'b', 'ç': 'c', '∂': 'd', '´': 'e', 'ƒ': 'f', '©': 'g',
+  '˙': 'h', 'ˆ': 'i', '∆': 'j', '˚': 'k', '¬': 'l', 'µ': 'm', '˜': 'n',
+  'ø': 'o', 'π': 'p', 'œ': 'q', '®': 'r', 'ß': 's', '†': 't', '¨': 'u',
+  '√': 'v', '∑': 'w', '≈': 'x', '¥': 'y', 'Ω': 'z'
+}
+
 export function maybePreventDefault(e: KeyboardEvent, hotkey: Hotkey, preventDefault?: Trigger): void {
   if ((typeof preventDefault === 'function' && preventDefault(e, hotkey)) || preventDefault === true) {
     e.preventDefault()
@@ -127,8 +136,24 @@ export const isHotkeyMatchingKeyboardEvent = (e: KeyboardEvent, hotkey: Hotkey, 
   // If useKey is set, match against the produced key value instead of the key code
   // When useKey is true, we ONLY match produced keys — never fall through to code-based matching
   if (useKey) {
-    // Normalize produced key: map ' ' to 'space' so hotkey string 'space' works with useKey
-    const normalizedKey = producedKey === ' ' ? 'space' : producedKey.toLowerCase()
+    // macOS Option key transforms event.key to Unicode characters (opt+y → '¥')
+    // Try both: physical key (event.code) AND reverse-mapped Unicode for layout support
+    if (altKey) {
+      const reverseMappedKey = macOSOptionKeyReverseMap[producedKey] || producedKey.toLowerCase()
+      if (keys?.length === 1) {
+        return keys.includes(mappedCode) || keys.includes(reverseMappedKey)
+      }
+      if (keys && keys.length > 0) {
+        return isHotkeyPressed(keys.map((k) => k.toLowerCase()))
+      }
+      return !keys || keys.length === 0
+    }
+
+    // Non-alt path: use event.key (layout-aware matching)
+    // Normalize produced key: map ' ' to 'space', ',' to 'comma'
+    const normalizedKey = producedKey === ' ' ? 'space'
+                        : producedKey === ',' ? 'comma'
+                        : producedKey.toLowerCase()
     if (keys?.length === 1) {
       return keys.includes(normalizedKey)
     }
