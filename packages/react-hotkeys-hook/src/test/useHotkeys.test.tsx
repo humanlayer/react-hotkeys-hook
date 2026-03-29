@@ -1636,6 +1636,77 @@ test('Should match mixed-case keys like PageUp with useKey option', async () => 
   expect(callback).toHaveBeenCalledTimes(2)
 })
 
+test('Should match meta+comma when Cmd+, is pressed', async () => {
+  const callback = vi.fn()
+
+  renderHook(() => useHotkeys('meta+comma', callback))
+
+  document.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: ',',
+      code: 'Comma',
+      metaKey: true,
+      bubbles: true,
+    })
+  )
+
+  expect(callback).toHaveBeenCalledTimes(1)
+})
+
+test('Should match alt+y when Option+Y produces Unicode character on macOS (QWERTY)', async () => {
+  const callback = vi.fn()
+
+  renderHook(() => useHotkeys('alt+y', callback))
+
+  // QWERTY: physical KeyY, event.key is '¥'
+  document.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: '¥',
+      code: 'KeyY',
+      altKey: true,
+      bubbles: true,
+    })
+  )
+
+  expect(callback).toHaveBeenCalledTimes(1)
+})
+
+test('Should match alt+y via Unicode reverse-mapping on Dvorak', async () => {
+  const callback = vi.fn()
+
+  renderHook(() => useHotkeys('alt+y', callback))
+
+  // Dvorak: physical key is NOT KeyY, but event.key is '¥' (Unicode for opt+y on US layout)
+  // The reverse-mapping detects '¥' → 'y' and matches
+  document.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: '¥',
+      code: 'KeyT', // Different physical key
+      altKey: true,
+      bubbles: true,
+    })
+  )
+
+  expect(callback).toHaveBeenCalledTimes(1)
+})
+
+test('Should match alt+a when Option+A produces Unicode character', async () => {
+  const callback = vi.fn()
+
+  renderHook(() => useHotkeys('alt+a', callback))
+
+  document.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: 'å',
+      code: 'KeyA',
+      altKey: true,
+      bubbles: true,
+    })
+  )
+
+  expect(callback).toHaveBeenCalledTimes(1)
+})
+
 test('Should remove listener on AbortSignal', async () => {
   const abortController = new AbortController()
   const { signal } = abortController
