@@ -9,7 +9,7 @@ import {
   isScopeActive,
   maybePreventDefault,
 } from './validators'
-import { useHotkeysContext } from './HotkeysProvider'
+import { useHotkeysScopeContext } from './HotkeysProvider'
 import { useBoundHotkeysProxy } from './BoundHotkeysProxyProvider'
 import useDeepEqualMemo from './useDeepEqualMemo'
 import { isReadonlyArray, pushToCurrentlyPressedKeys, removeFromCurrentlyPressedKeys } from './isHotkeyPressed'
@@ -55,7 +55,7 @@ export default function useHotkeys<T extends HTMLElement>(
 
   const memoisedOptions = useDeepEqualMemo(_options)
 
-  const { activeScopes } = useHotkeysContext()
+  const { activeScopes } = useHotkeysScopeContext()
   const proxy = useBoundHotkeysProxy()
 
   useSafeLayoutEffect(() => {

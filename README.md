@@ -82,8 +82,7 @@ export const ExampleComponent = () => {
 
 #### Changing a scope's active state
 
-You can change the active state of a scope using the `disableScope`, `enableScope` and `toggleScope` functions
-returned by the `useHotkeysContext()` hook. Note that you have to have your app wrapped in a `<HotkeysProvider>` component.
+You can change the active state of a scope using the `disableScope`, `enableScope` and `toggleScope` functions returned by the `useHotkeysScopeContext()` hook. Wrap your app in a `<HotkeysProvider>` component.
 
 ```jsx harmony
 const App = () => {
@@ -95,7 +94,7 @@ const App = () => {
 }
 
 export const ExampleComponent = () => {
-  const { toggleScope } = useHotkeysContext()
+  const { toggleScope } = useHotkeysScopeContext()
 
   return (
     <button onClick={() => toggleScope('settings')}>
@@ -104,6 +103,12 @@ export const ExampleComponent = () => {
   )
 }
 ```
+
+`useHotkeysScopeContext()` returns `activeScopes`, `enableScope`, `disableScope`, and `toggleScope` without subscribing to the registered-hotkey list. Use it for components that only read or change scopes. Its return type is exported as `HotkeysScopeContextType`.
+
+`useHotkeysContext()` remains supported and returns the same scope controls plus `hotkeys`. Use it when you need the live registry, such as a shortcut inspector. Registry additions and removals still update these consumers, but no longer trigger context-driven rerenders of unrelated `useHotkeys` or `useHotkeysScopeContext` consumers. Parent rerenders and genuine scope changes can still rerender them.
+
+Enabling an already-enabled scope or disabling an absent scope preserves the active-scopes reference when the resulting scopes are unchanged. Existing wildcard behavior is preserved: enabling a scope while `'*'` is active replaces the active scopes with that scope.
 
 ### Focus trap
 
